@@ -10,33 +10,34 @@ const newUser = async (req,res) =>{
     //bookedSeats.flat().map((i) => parseInt(i))
     const checkUser = await shows.find({email : email});
     console.log(checkUser.length)
-    if(checkUser.length === 0){
-        //Encrypt user password
-        encryptedPassword = await bcrypt.hash(password, 10);
-        console.log("encryptedPassword--=>>",encryptedPassword)
-        const data = await shows.create({
-            username,email,password : encryptedPassword,
-            isDeleted: false,
-            addTime: new Date().toISOString()
-        })
+    if(checkUser.length != 0){
+        res.status(200).json({error:"User already exists!", success : false})
 
-        // Create token
-        const token = jwt.sign(
-            { username: username, email },
-            'sahil',
-            {
-            expiresIn: "2h",
-            }
-        );
-        // save user token
-        data.token = token;
-        
-        console.log("result",data);
-        console.log(token)
-        res.status(200).json({data,token})
-        return
     }else{
-        res.status(400).json({error:"User already exists!"})
+                //Encrypt user password
+                encryptedPassword = await bcrypt.hash(password, 10);
+                console.log("encryptedPassword--=>>",encryptedPassword)
+                const data = await shows.create({
+                    username,email,password : encryptedPassword,
+                    isDeleted: false,
+                    addTime: new Date().toISOString()
+                })
+        
+                // Create token
+                const token = jwt.sign(
+                    { username: username, email },
+                    'sahil',
+                    {
+                    expiresIn: "2h",
+                    }
+                );
+                // save user token
+                data.token = token;
+                
+                console.log("result",data);
+                console.log(token)
+                return res.status(200).json({data,token, success : true})
+                
     }
 }
 
